@@ -11,10 +11,12 @@ function App() {
   const [endNumber, setEndNumber] = useState(10);
   const [stepNumber, setStepNumber] = useState(1);
   const [autoGenerate, setAutoGenerate] = useState(true);
+  const [lettersPerRow, setLettersPerRow] = useState(7);
+  const [numbersPerRow, setNumbersPerRow] = useState(10);
 
   useEffect(() => {
     if (autoGenerate) handleGenerate();
-  });
+  }, [autoGenerate, font, fontSize, type, isRandom, startNumber, endNumber, stepNumber, lettersPerRow, numbersPerRow]);
 
   const handleGenerate = () => {
     if (type === 'letters') {
@@ -89,31 +91,12 @@ function App() {
         ctx.strokeText(letter, x - metrics.width / 2, y);
       });
     } else {
-      const padding = 10; // Reduced padding between letters
-      const pageMargin = 30; // Slightly reduced margin from edge of page
-
-      // Function to check if the current configuration fits
-      const doesConfigurationFit = (size, lettersPerRow) => {
-        const spacing = (canvas.width - 2 * pageMargin) / lettersPerRow;
-        return spacing >= size * 1.2 + padding;
-      };
-
-      // Find the right font size and letters per row configuration
-      let lettersPerRow = 7; // Try to fit more letters per row
-      while (!doesConfigurationFit(currentFontSize, lettersPerRow) && currentFontSize > 40) {
-        currentFontSize -= 5;
-      }
-      
-      // If we still can't fit with minimum font size, reduce letters per row
-      if (!doesConfigurationFit(currentFontSize, lettersPerRow)) {
-        lettersPerRow = 6;
-      }
-
-      ctx.font = `${currentFontSize}px ${font}`;
+      const padding = 10;
+      const pageMargin = 30;
       const spacing = (canvas.width - 2 * pageMargin) / lettersPerRow;
       const rows = Math.ceil(letters.length / lettersPerRow);
       const totalHeight = rows * (currentFontSize * 1.2 + padding);
-      const startY = (canvas.height - totalHeight) / 2 + currentFontSize; // Vertical centering
+      const startY = (canvas.height - totalHeight) / 2 + currentFontSize;
 
       letters.split('').forEach((letter, i) => {
         const row = Math.floor(i / lettersPerRow);
@@ -121,7 +104,6 @@ function App() {
         const x = pageMargin + col * spacing + spacing / 2;
         const y = startY + row * (currentFontSize * 1.2 + padding);
 
-        // Center the letter horizontally by measuring its width
         const metrics = ctx.measureText(letter);
         const letterX = x - metrics.width / 2;
         
@@ -172,22 +154,6 @@ function App() {
     } else {
       const padding = 10;
       const pageMargin = 30;
-
-      const doesConfigurationFit = (size, numbersPerRow) => {
-        const spacing = (canvas.width - 2 * pageMargin) / numbersPerRow;
-        return spacing >= size * 1.2 + padding;
-      };
-
-      let numbersPerRow = 7;
-      while (!doesConfigurationFit(currentFontSize, numbersPerRow) && currentFontSize > 40) {
-        currentFontSize -= 5;
-      }
-      
-      if (!doesConfigurationFit(currentFontSize, numbersPerRow)) {
-        numbersPerRow = 6;
-      }
-
-      ctx.font = `${currentFontSize}px ${font}`;
       const spacing = (canvas.width - 2 * pageMargin) / numbersPerRow;
       const rows = Math.ceil(numbers.length / numbersPerRow);
       const totalHeight = rows * (currentFontSize * 1.2 + padding);
@@ -261,6 +227,24 @@ function App() {
               onChange={handleRandomChange}
             />
           </div>
+          {!isRandom && (
+            <div className="form-row column">
+              <label htmlFor="items-per-row">
+                {type === 'letters' ? 'Letters' : 'Numbers'} Per Row: {type === 'letters' ? lettersPerRow : numbersPerRow}
+              </label>
+              <input
+                id="items-per-row"
+                type="range"
+                min="3"
+                max="12"
+                value={type === 'letters' ? lettersPerRow : numbersPerRow}
+                onChange={(e) => type === 'letters' 
+                  ? setLettersPerRow(Number(e.target.value))
+                  : setNumbersPerRow(Number(e.target.value))
+                }
+              />
+            </div>
+          )}
           {type === 'numbers' && (
             <>
               <div className="form-row">
