@@ -63,14 +63,14 @@ function App() {
     ctx.lineWidth = 2;
 
     const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const positions = [];
 
     if (random) {
+      const positions = [];
       const isOverlapping = (x, y, size) => {
-        return positions.some(([px, py]) => Math.hypot(px - x, py - y) < size);
+        return positions.some(([px, py]) => Math.hypot(px - x, py - y) < size * 1.2);
       };
 
-      for (let i = 0; i < letters.length; i++) {
+      letters.split('').forEach((letter) => {
         let x, y;
         let attempts = 0;
         do {
@@ -82,16 +82,50 @@ function App() {
             ctx.font = `${currentFontSize}px ${font}`;
             attempts = 0;
           }
-        } while (isOverlapping(x, y, currentFontSize * 1.5));
+        } while (isOverlapping(x, y, currentFontSize));
 
         positions.push([x, y]);
-        ctx.strokeText(letters[i], x, y);
-      }
+        const metrics = ctx.measureText(letter);
+        ctx.strokeText(letter, x - metrics.width / 2, y);
+      });
     } else {
+      const padding = 10; // Reduced padding between letters
+      const pageMargin = 30; // Slightly reduced margin from edge of page
+
+      // Function to check if the current configuration fits
+      const doesConfigurationFit = (size, lettersPerRow) => {
+        const spacing = (canvas.width - 2 * pageMargin) / lettersPerRow;
+        return spacing >= size * 1.2 + padding;
+      };
+
+      // Find the right font size and letters per row configuration
+      let lettersPerRow = 7; // Try to fit more letters per row
+      while (!doesConfigurationFit(currentFontSize, lettersPerRow) && currentFontSize > 40) {
+        currentFontSize -= 5;
+      }
+      
+      // If we still can't fit with minimum font size, reduce letters per row
+      if (!doesConfigurationFit(currentFontSize, lettersPerRow)) {
+        lettersPerRow = 6;
+      }
+
+      ctx.font = `${currentFontSize}px ${font}`;
+      const spacing = (canvas.width - 2 * pageMargin) / lettersPerRow;
+      const rows = Math.ceil(letters.length / lettersPerRow);
+      const totalHeight = rows * (currentFontSize * 1.2 + padding);
+      const startY = (canvas.height - totalHeight) / 2 + currentFontSize; // Vertical centering
+
       letters.split('').forEach((letter, i) => {
-        const x = 50 + (i % 6) * 120; // Adjust spacing for ordered placement
-        const y = 100 + Math.floor(i / 6) * 120;
-        ctx.strokeText(letter, x, y);
+        const row = Math.floor(i / lettersPerRow);
+        const col = i % lettersPerRow;
+        const x = pageMargin + col * spacing + spacing / 2;
+        const y = startY + row * (currentFontSize * 1.2 + padding);
+
+        // Center the letter horizontally by measuring its width
+        const metrics = ctx.measureText(letter);
+        const letterX = x - metrics.width / 2;
+        
+        ctx.strokeText(letter, letterX, y);
       });
     }
   };
@@ -106,15 +140,18 @@ function App() {
     ctx.strokeStyle = 'black';
     ctx.lineWidth = 2;
 
-    const numbers = Array.from({ length: Math.ceil(maxNumber / step) }, (_, i) => (i + 1) * step);
-    const positions = [];
+    const numbers = Array.from(
+      { length: Math.ceil((maxNumber - startNumber + 1) / step) },
+      (_, i) => startNumber + i * step
+    );
 
     if (random) {
+      const positions = [];
       const isOverlapping = (x, y, size) => {
-        return positions.some(([px, py]) => Math.hypot(px - x, py - y) < size);
+        return positions.some(([px, py]) => Math.hypot(px - x, py - y) < size * 1.2);
       };
 
-      for (let i = 0; i < numbers.length; i++) {
+      numbers.forEach((number) => {
         let x, y;
         let attempts = 0;
         do {
@@ -126,16 +163,46 @@ function App() {
             ctx.font = `${currentFontSize}px ${font}`;
             attempts = 0;
           }
-        } while (isOverlapping(x, y, currentFontSize * 1.5));
+        } while (isOverlapping(x, y, currentFontSize));
 
         positions.push([x, y]);
-        ctx.strokeText(numbers[i], x, y);
-      }
+        const metrics = ctx.measureText(number.toString());
+        ctx.strokeText(number.toString(), x - metrics.width / 2, y);
+      });
     } else {
+      const padding = 10;
+      const pageMargin = 30;
+
+      const doesConfigurationFit = (size, numbersPerRow) => {
+        const spacing = (canvas.width - 2 * pageMargin) / numbersPerRow;
+        return spacing >= size * 1.2 + padding;
+      };
+
+      let numbersPerRow = 7;
+      while (!doesConfigurationFit(currentFontSize, numbersPerRow) && currentFontSize > 40) {
+        currentFontSize -= 5;
+      }
+      
+      if (!doesConfigurationFit(currentFontSize, numbersPerRow)) {
+        numbersPerRow = 6;
+      }
+
+      ctx.font = `${currentFontSize}px ${font}`;
+      const spacing = (canvas.width - 2 * pageMargin) / numbersPerRow;
+      const rows = Math.ceil(numbers.length / numbersPerRow);
+      const totalHeight = rows * (currentFontSize * 1.2 + padding);
+      const startY = (canvas.height - totalHeight) / 2 + currentFontSize;
+
       numbers.forEach((number, i) => {
-        const x = 50 + (i % 6) * 120; // Adjust spacing for ordered placement
-        const y = 100 + Math.floor(i / 6) * 120;
-        ctx.strokeText(number, x, y);
+        const row = Math.floor(i / numbersPerRow);
+        const col = i % numbersPerRow;
+        const x = pageMargin + col * spacing + spacing / 2;
+        const y = startY + row * (currentFontSize * 1.2 + padding);
+
+        const metrics = ctx.measureText(number.toString());
+        const numberX = x - metrics.width / 2;
+        
+        ctx.strokeText(number.toString(), numberX, y);
       });
     }
   };
@@ -164,13 +231,13 @@ function App() {
               <option value="Roboto">Roboto</option>
             </select>
           </div>
-          <div className="form-row">
+          <div className="form-row column">
             <label htmlFor="font-size-slider">Font Size: {fontSize}px</label>
             <input
               id="font-size-slider"
               type="range"
               min="40"
-              max="120"
+              max="200"
               value={fontSize}
               onChange={handleFontSizeChange}
             />

@@ -114,8 +114,14 @@ canvas {
 
 .form-row {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 5px;
+  justify-content: space-between;
+}
+
+.form-row.column {
+  flex-direction: column;
+  width: 100%;
 }
 
 .form-row label {
@@ -128,7 +134,7 @@ canvas {
 }
 
 .form-row input[type="number"] {
-  width: 100%;
+  width: 75px;
   background-color: var(--form-bg);
   color: var(--form-text);
   border: 1px solid var(--form-border);
@@ -137,7 +143,7 @@ canvas {
 }
 
 .form-row select {
-  width: 100%;
+  width: 150px;
   background-color: var(--form-bg);
   color: var(--form-text);
   border: 1px solid var(--form-border);
