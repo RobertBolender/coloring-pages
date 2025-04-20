@@ -5,6 +5,7 @@
   --button-bg: #646cff;
   --button-hover: #747bff;
   --button-disabled: #a5a5a5;
+  --sidebar-width: 300px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -21,7 +22,6 @@
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
   text-align: center;
 }
 
@@ -109,26 +109,26 @@ canvas {
 .form-section {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 15px;
 }
 
 .form-row {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
+  gap: 5px;
 }
 
 .form-row label {
-  min-width: 120px;
-  text-align: right;
+  text-align: left;
+  font-weight: 500;
 }
 
 .form-row input[type="range"] {
-  flex: 1;
+  width: 100%;
 }
 
 .form-row input[type="number"] {
-  width: 80px;
+  width: 100%;
   background-color: var(--form-bg);
   color: var(--form-text);
   border: 1px solid var(--form-border);
@@ -137,6 +137,7 @@ canvas {
 }
 
 .form-row select {
+  width: 100%;
   background-color: var(--form-bg);
   color: var(--form-text);
   border: 1px solid var(--form-border);
@@ -145,14 +146,13 @@ canvas {
 }
 
 .buttons {
-  grid-column: 1 / -1;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   gap: 10px;
-  margin-top: 10px;
 }
 
 button {
+  width: 100%;
   padding: 8px 16px;
   border: none;
   border-radius: 4px;
@@ -172,6 +172,38 @@ button:hover:not(:disabled) {
   background-color: var(--button-hover);
 }
 
+.app-container {
+  display: flex;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+.sidebar {
+  width: var(--sidebar-width);
+  background-color: var(--form-bg);
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.main-content {
+  display: flex;
+  padding: 20px;
+}
+
+canvas {
+  background-color: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+  canvas {
+    background-color: #333;
+  }
+}
+
 @media print {
   .form-controls {
     display: none;
@@ -180,5 +212,14 @@ button:hover:not(:disabled) {
   canvas {
     margin: 0;
     border: none;
+    background-color: transparent;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  .main-content {
+    padding: 0;
   }
 }

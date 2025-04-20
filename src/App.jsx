@@ -141,9 +141,9 @@ function App() {
   };
 
   return (
-    <div style={{ textAlign: 'center', padding: '20px' }}>
-      <h1>Coloring Page Generator</h1>
-      <div className="form-controls">
+    <div className="app-container">
+      <div className="sidebar">
+        <h1>Coloring Page Generator</h1>
         <div className="form-section">
           <div className="form-row">
             <label htmlFor="auto-generate">Auto-Generate:</label>
@@ -228,17 +228,18 @@ function App() {
         </div>
 
         <div className="buttons">
-          <button onClick={handleGenerate}>Generate</button>
+          <button onClick={handleGenerate}>Regenerate</button>
           <button onClick={window.print}>Print Coloring Page</button>
         </div>
       </div>
 
-      <canvas
-        ref={canvasRef}
-        width={816}
-        height={1056}
-        style={{ marginTop: '20px' }}
-      ></canvas>
+      <div className="main-content">
+        <canvas
+          ref={canvasRef}
+          width={816}
+          height={1056}
+        ></canvas>
+      </div>
     </div>
   );
 }
