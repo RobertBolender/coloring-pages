@@ -282,33 +282,75 @@ canvas {
   background-color: #ff6666;
 }
 
-.gallery-grid {
+.gallery-container {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  padding: 20px;
-  max-width: 816px;
-  margin: 0 auto;
   background-color: var(--form-bg);
   border-radius: 8px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  overflow-y: auto;
   z-index: 10;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  width: 856px; /* 816px max-width + 40px padding */
+  margin: 0 auto;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: calc(816px / 3 * 1.2941); /* Maintain exact height for each row */
+  gap: 20px;
+  max-width: 816px;
+  margin: 0 auto;
+  flex: 1;
+  overflow-y: auto;
+  /* Set a minimum height to ensure the grid takes up space even with few items */
+  min-height: calc((816px / 3 * 1.2941) * 3 + 40px); /* 3 rows of thumbnails plus gaps */
+}
+
+.gallery-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding-bottom: 20px;
+  margin-top: auto;
+}
+
+.gallery-status {
+  min-width: 200px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--form-text);
+}
+
+.gallery-nav-button {
+  font-size: 24px;
+  padding: 4px 12px;
+  line-height: 1;
+}
+
+.gallery-nav-button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
 }
 
 .gallery-item {
-  aspect-ratio: 816/1056;
+  position: relative;
+  width: 100%;
+  padding-top: 129.41%; /* 1056/816 aspect ratio */
   border: 1px solid var(--form-border);
   border-radius: 8px;
   overflow: hidden;
   background-color: #fff;
+  /* Ensure each grid cell maintains size even when empty */
+  min-width: calc((816px - 40px) / 3); /* (container width - total gap width) / 3 columns */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -318,7 +360,9 @@ canvas {
 }
 
 .gallery-item-content {
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   display: flex;
@@ -360,6 +404,7 @@ canvas {
 .gallery-item-actions button {
   padding: 4px 8px;
   font-size: 12px;
+  background-color: rgba(0, 0, 0, 0.7);
 }
 
 @media print {

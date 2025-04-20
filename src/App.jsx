@@ -3,42 +3,78 @@ import seedrandom from 'seedrandom';
 import './App.css';
 
 const Gallery = ({ pages, onLoad, onDelete }) => {
+  const [currentPage, setCurrentPage] = useState(0);
+  const pageSize = 9;
+  const totalPages = Math.ceil(pages.length / pageSize);
+  const startIndex = currentPage * pageSize;
+  const endIndex = Math.min(startIndex + pageSize, pages.length);
+
+  const handlePrevPage = () => {
+    setCurrentPage(prev => Math.max(0, prev - 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage(prev => Math.min(totalPages - 1, prev + 1));
+  };
+
   const renderThumbnail = (page) => {
     const canvas = document.createElement('canvas');
-    canvas.width = 816 / 3;
-    canvas.height = 1056 / 3;
+    canvas.width = 816;
+    canvas.height = 1056;
     const ctx = canvas.getContext('2d');
 
     // Apply the page settings to generate the thumbnail
     const { settings } = page;
-    ctx.font = `${settings.fontSize / 3}px ${settings.font}`;
+    ctx.font = `${settings.fontSize}px ${settings.font}`;
     ctx.strokeStyle = 'black';
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 2;
 
-    // Generate the content at 1/3 scale
     if (settings.type === 'letters') {
       const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
       if (settings.isRandom) {
         const rng = seedrandom(settings.randomSeed);
         const positions = [];
+        const isOverlapping = (x, y, size) => {
+          return positions.some(([px, py]) => Math.hypot(px - x, py - y) < size * 1.2);
+        };
+
         letters.split('').forEach((letter) => {
-          let x = rng() * (canvas.width - settings.fontSize / 2) + settings.fontSize / 4;
-          let y = rng() * (canvas.height - settings.fontSize / 2) + settings.fontSize / 4;
+          let x, y;
+          let attempts = 0;
+          let currentFontSize = settings.fontSize;
+          do {
+            x = rng() * (canvas.width - currentFontSize * 1.5) + currentFontSize * 0.75;
+            y = rng() * (canvas.height - currentFontSize * 1.5) + currentFontSize * 0.75;
+            attempts++;
+            if (attempts > 100) {
+              currentFontSize -= 5;
+              ctx.font = `${currentFontSize}px ${settings.font}`;
+              attempts = 0;
+            }
+          } while (isOverlapping(x, y, currentFontSize));
+
           positions.push([x, y]);
           const metrics = ctx.measureText(letter);
           ctx.strokeText(letter, x - metrics.width / 2, y);
         });
       } else {
-        const padding = 3;
-        const pageMargin = 10;
+        const padding = 10;
+        const pageMargin = 30;
         const spacing = (canvas.width - 2 * pageMargin) / settings.lettersPerRow;
+        const rows = Math.ceil(letters.length / settings.lettersPerRow);
+        const totalHeight = rows * (settings.fontSize * 1.2 + padding);
+        const startY = (canvas.height - totalHeight) / 2 + settings.fontSize;
+
         letters.split('').forEach((letter, i) => {
           const row = Math.floor(i / settings.lettersPerRow);
           const col = i % settings.lettersPerRow;
           const x = pageMargin + col * spacing + spacing / 2;
-          const y = pageMargin + row * (settings.fontSize / 3 * 1.2 + padding) + settings.fontSize / 3;
+          const y = startY + row * (settings.fontSize * 1.2 + padding);
+
           const metrics = ctx.measureText(letter);
-          ctx.strokeText(letter, x - metrics.width / 2, y);
+          const letterX = x - metrics.width / 2;
+
+          ctx.strokeText(letter, letterX, y);
         });
       }
     } else {
@@ -46,27 +82,51 @@ const Gallery = ({ pages, onLoad, onDelete }) => {
         { length: Math.ceil((settings.endNumber - settings.startNumber + 1) / settings.stepNumber) },
         (_, i) => settings.startNumber + i * settings.stepNumber
       );
+
       if (settings.isRandom) {
         const rng = seedrandom(settings.randomSeed);
         const positions = [];
+        const isOverlapping = (x, y, size) => {
+          return positions.some(([px, py]) => Math.hypot(px - x, py - y) < size * 1.2);
+        };
+
         numbers.forEach((number) => {
-          let x = rng() * (canvas.width - settings.fontSize / 2) + settings.fontSize / 4;
-          let y = rng() * (canvas.height - settings.fontSize / 2) + settings.fontSize / 4;
+          let x, y;
+          let attempts = 0;
+          let currentFontSize = settings.fontSize;
+          do {
+            x = rng() * (canvas.width - currentFontSize * 1.5) + currentFontSize * 0.75;
+            y = rng() * (canvas.height - currentFontSize * 1.5) + currentFontSize * 0.75;
+            attempts++;
+            if (attempts > 100) {
+              currentFontSize -= 5;
+              ctx.font = `${currentFontSize}px ${settings.font}`;
+              attempts = 0;
+            }
+          } while (isOverlapping(x, y, currentFontSize));
+
           positions.push([x, y]);
           const metrics = ctx.measureText(number.toString());
           ctx.strokeText(number.toString(), x - metrics.width / 2, y);
         });
       } else {
-        const padding = 3;
-        const pageMargin = 10;
+        const padding = 10;
+        const pageMargin = 30;
         const spacing = (canvas.width - 2 * pageMargin) / settings.numbersPerRow;
+        const rows = Math.ceil(numbers.length / settings.numbersPerRow);
+        const totalHeight = rows * (settings.fontSize * 1.2 + padding);
+        const startY = (canvas.height - totalHeight) / 2 + settings.fontSize;
+
         numbers.forEach((number, i) => {
           const row = Math.floor(i / settings.numbersPerRow);
           const col = i % settings.numbersPerRow;
           const x = pageMargin + col * spacing + spacing / 2;
-          const y = pageMargin + row * (settings.fontSize / 3 * 1.2 + padding) + settings.fontSize / 3;
+          const y = startY + row * (settings.fontSize * 1.2 + padding);
+
           const metrics = ctx.measureText(number.toString());
-          ctx.strokeText(number.toString(), x - metrics.width / 2, y);
+          const numberX = x - metrics.width / 2;
+
+          ctx.strokeText(number.toString(), numberX, y);
         });
       }
     }
@@ -86,8 +146,29 @@ const Gallery = ({ pages, onLoad, onDelete }) => {
   };
 
   return (
-    <div className="gallery-grid">
-      {pages.slice(0, 9).map(renderThumbnail)}
+    <div className="gallery-container">
+      <div className="gallery-controls">
+        <button
+          onClick={handlePrevPage}
+          disabled={currentPage === 0}
+          className="gallery-nav-button"
+        >
+          ←
+        </button>
+        <div className="gallery-status">
+          Displaying {startIndex + 1}-{endIndex} of {pages.length} pages
+        </div>
+        <button
+          onClick={handleNextPage}
+          disabled={currentPage >= totalPages - 1}
+          className="gallery-nav-button"
+        >
+          →
+        </button>
+      </div>
+      <div className="gallery-grid">
+        {pages.slice(startIndex, endIndex).map(renderThumbnail)}
+      </div>
     </div>
   );
 };
