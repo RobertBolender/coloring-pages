@@ -226,6 +226,7 @@ canvas {
   }
 
   canvas {
+    position: relative;
     margin: 0;
     border: none;
     background-color: transparent;
@@ -297,21 +298,24 @@ canvas {
   display: flex;
   flex-direction: column;
   padding: 20px;
-  width: 856px; /* 816px max-width + 40px padding */
+  width: 856px;
+  /* 816px max-width + 40px padding */
   margin: 0 auto;
 }
 
 .gallery-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-auto-rows: calc(816px / 3 * 1.2941); /* Maintain exact height for each row */
+  grid-auto-rows: calc(816px / 3 * 1.2941);
+  /* Maintain exact height for each row */
   gap: 20px;
   max-width: 816px;
   margin: 0 auto;
   flex: 1;
   overflow-y: auto;
   /* Set a minimum height to ensure the grid takes up space even with few items */
-  min-height: calc((816px / 3 * 1.2941) * 3 + 40px); /* 3 rows of thumbnails plus gaps */
+  min-height: calc((816px / 3 * 1.2941) * 3 + 40px);
+  /* 3 rows of thumbnails plus gaps */
 }
 
 .gallery-controls {
@@ -344,13 +348,15 @@ canvas {
 .gallery-item {
   position: relative;
   width: 100%;
-  padding-top: 129.41%; /* 1056/816 aspect ratio */
+  padding-top: 129.41%;
+  /* 1056/816 aspect ratio */
   border: 1px solid var(--form-border);
   border-radius: 8px;
   overflow: hidden;
   background-color: #fff;
   /* Ensure each grid cell maintains size even when empty */
-  min-width: calc((816px - 40px) / 3); /* (container width - total gap width) / 3 columns */
+  min-width: calc((816px - 40px) / 3);
+  /* (container width - total gap width) / 3 columns */
 }
 
 @media (prefers-color-scheme: dark) {
