@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
+import seedrandom from 'seedrandom';
 import './App.css';
 
 function App() {
@@ -13,18 +14,29 @@ function App() {
   const [autoGenerate, setAutoGenerate] = useState(true);
   const [lettersPerRow, setLettersPerRow] = useState(7);
   const [numbersPerRow, setNumbersPerRow] = useState(10);
+  const [randomSeed, setRandomSeed] = useState(() => Math.random().toString());
+  const [savedPages, setSavedPages] = useState(() => {
+    const saved = localStorage.getItem('coloringPages');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [currentPageName, setCurrentPageName] = useState('');
+
+  // Load saved pages from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('coloringPages');
+    if (saved) {
+      setSavedPages(JSON.parse(saved));
+    }
+  }, []);
+
+  // Save pages to localStorage when they change
+  useEffect(() => {
+    localStorage.setItem('coloringPages', JSON.stringify(savedPages));
+  }, [savedPages]);
 
   useEffect(() => {
     if (autoGenerate) handleGenerate();
-  }, [autoGenerate, font, fontSize, type, isRandom, startNumber, endNumber, stepNumber, lettersPerRow, numbersPerRow]);
-
-  const handleGenerate = () => {
-    if (type === 'letters') {
-      generateLetters(isRandom);
-    } else {
-      generateNumbers(endNumber, stepNumber, isRandom);
-    }
-  };
+  }, [autoGenerate, font, fontSize, type, isRandom, randomSeed, startNumber, endNumber, stepNumber, lettersPerRow, numbersPerRow]);
 
   const handleFontChange = (event) => {
     setFont(event.target.value);
@@ -40,6 +52,9 @@ function App() {
 
   const handleRandomChange = (event) => {
     setIsRandom(event.target.checked);
+    if (event.target.checked) {
+      setRandomSeed(Math.random().toString());
+    }
   };
 
   const handleStartNumberChange = (event) => {
@@ -52,6 +67,48 @@ function App() {
 
   const handleStepNumberChange = (event) => {
     setStepNumber(Number(event.target.value));
+  };
+
+  const savePage = () => {
+    if (!currentPageName.trim()) return;
+
+    const pageSettings = {
+      id: Date.now(),
+      name: currentPageName,
+      settings: {
+        font,
+        fontSize,
+        type,
+        isRandom,
+        startNumber,
+        endNumber,
+        stepNumber,
+        lettersPerRow,
+        numbersPerRow,
+        randomSeed
+      }
+    };
+
+    setSavedPages(prev => [...prev, pageSettings]);
+    setCurrentPageName('');
+  };
+
+  const loadPage = (page) => {
+    const { settings } = page;
+    setFont(settings.font);
+    setFontSize(settings.fontSize);
+    setType(settings.type);
+    setIsRandom(settings.isRandom);
+    setStartNumber(settings.startNumber);
+    setEndNumber(settings.endNumber);
+    setStepNumber(settings.stepNumber);
+    setLettersPerRow(settings.lettersPerRow);
+    setNumbersPerRow(settings.numbersPerRow);
+    setRandomSeed(settings.randomSeed);
+  };
+
+  const deletePage = (id) => {
+    setSavedPages(prev => prev.filter(page => page.id !== id));
   };
 
   const generateLetters = (random = false) => {
@@ -67,6 +124,7 @@ function App() {
     const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
     if (random) {
+      const rng = seedrandom(randomSeed);
       const positions = [];
       const isOverlapping = (x, y, size) => {
         return positions.some(([px, py]) => Math.hypot(px - x, py - y) < size * 1.2);
@@ -76,8 +134,8 @@ function App() {
         let x, y;
         let attempts = 0;
         do {
-          x = Math.random() * (canvas.width - currentFontSize * 1.5) + currentFontSize * 0.75;
-          y = Math.random() * (canvas.height - currentFontSize * 1.5) + currentFontSize * 0.75;
+          x = rng() * (canvas.width - currentFontSize * 1.5) + currentFontSize * 0.75;
+          y = rng() * (canvas.height - currentFontSize * 1.5) + currentFontSize * 0.75;
           attempts++;
           if (attempts > 100) {
             currentFontSize -= 5;
@@ -106,7 +164,7 @@ function App() {
 
         const metrics = ctx.measureText(letter);
         const letterX = x - metrics.width / 2;
-        
+
         ctx.strokeText(letter, letterX, y);
       });
     }
@@ -128,6 +186,7 @@ function App() {
     );
 
     if (random) {
+      const rng = seedrandom(randomSeed);
       const positions = [];
       const isOverlapping = (x, y, size) => {
         return positions.some(([px, py]) => Math.hypot(px - x, py - y) < size * 1.2);
@@ -137,8 +196,8 @@ function App() {
         let x, y;
         let attempts = 0;
         do {
-          x = Math.random() * (canvas.width - currentFontSize * 1.5) + currentFontSize * 0.75;
-          y = Math.random() * (canvas.height - currentFontSize * 1.5) + currentFontSize * 0.75;
+          x = rng() * (canvas.width - currentFontSize * 1.5) + currentFontSize * 0.75;
+          y = rng() * (canvas.height - currentFontSize * 1.5) + currentFontSize * 0.75;
           attempts++;
           if (attempts > 100) {
             currentFontSize -= 5;
@@ -167,9 +226,23 @@ function App() {
 
         const metrics = ctx.measureText(number.toString());
         const numberX = x - metrics.width / 2;
-        
+
         ctx.strokeText(number.toString(), numberX, y);
       });
+    }
+  };
+
+  const handleRegenerateClick = () => {
+    if (isRandom) {
+      setRandomSeed(Math.random().toString());
+    }
+  };
+
+  const handleGenerate = () => {
+    if (type === 'letters') {
+      generateLetters(isRandom);
+    } else {
+      generateNumbers(endNumber, stepNumber, isRandom);
     }
   };
 
@@ -238,7 +311,7 @@ function App() {
                 min="3"
                 max="12"
                 value={type === 'letters' ? lettersPerRow : numbersPerRow}
-                onChange={(e) => type === 'letters' 
+                onChange={(e) => type === 'letters'
                   ? setLettersPerRow(Number(e.target.value))
                   : setNumbersPerRow(Number(e.target.value))
                 }
@@ -279,8 +352,34 @@ function App() {
         </div>
 
         <div className="buttons">
-          <button onClick={handleGenerate}>Regenerate</button>
+          <button onClick={handleRegenerateClick}>Regenerate</button>
           <button onClick={window.print}>Print Coloring Page</button>
+        </div>
+
+        <div className="form-section">
+          <h3>Saved Pages</h3>
+          <div className="form-row">
+            <input
+              type="text"
+              placeholder="Page name"
+              value={currentPageName}
+              onChange={(e) => setCurrentPageName(e.target.value)}
+            />
+            <button onClick={savePage} disabled={!currentPageName.trim()}>
+              Save
+            </button>
+          </div>
+          <div className="saved-pages-list">
+            {savedPages.map((page) => (
+              <div key={page.id} className="saved-page-item">
+                <span>{page.name}</span>
+                <div className="saved-page-actions">
+                  <button onClick={() => loadPage(page)}>Load</button>
+                  <button onClick={() => deletePage(page.id)} className="delete">×</button>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

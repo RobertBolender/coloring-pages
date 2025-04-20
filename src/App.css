@@ -151,6 +151,15 @@ canvas {
   padding: 4px 8px;
 }
 
+.form-row input[type="text"] {
+  flex: 1;
+  background-color: var(--form-bg);
+  color: var(--form-text);
+  border: 1px solid var(--form-border);
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+
 .buttons {
   display: flex;
   flex-direction: column;
@@ -228,4 +237,46 @@ canvas {
   .main-content {
     padding: 0;
   }
+}
+
+.saved-pages-list {
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid var(--form-border);
+  border-radius: 4px;
+  padding: 8px;
+  margin-top: 10px;
+}
+
+.saved-page-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
+  border-bottom: 1px solid var(--form-border);
+}
+
+.saved-page-item:last-child {
+  border-bottom: none;
+}
+
+.saved-page-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.saved-page-actions button {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.saved-page-actions button.delete {
+  background-color: #ff4444;
+  font-size: 16px;
+  line-height: 1;
+  padding: 2px 6px;
+}
+
+.saved-page-actions button.delete:hover {
+  background-color: #ff6666;
 }
