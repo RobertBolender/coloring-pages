@@ -1,3 +1,23 @@
+:root {
+  --form-bg: #f5f5f5;
+  --form-text: #213547;
+  --form-border: #ddd;
+  --button-bg: #646cff;
+  --button-hover: #747bff;
+  --button-disabled: #a5a5a5;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --form-bg: #242424;
+    --form-text: #ffffff;
+    --form-border: #383838;
+    --button-bg: #646cff;
+    --button-hover: #747bff;
+    --button-disabled: #4a4a4a;
+  }
+}
+
 #root {
   max-width: 1280px;
   margin: 0 auto;
@@ -71,4 +91,94 @@ canvas {
 
 .read-the-docs {
   color: #888;
+}
+
+.form-controls {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  max-width: 800px;
+  margin: 0 auto 20px;
+  padding: 20px;
+  background-color: var(--form-bg);
+  border: 1px solid var(--form-border);
+  border-radius: 8px;
+  color: var(--form-text);
+}
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.form-row label {
+  min-width: 120px;
+  text-align: right;
+}
+
+.form-row input[type="range"] {
+  flex: 1;
+}
+
+.form-row input[type="number"] {
+  width: 80px;
+  background-color: var(--form-bg);
+  color: var(--form-text);
+  border: 1px solid var(--form-border);
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+
+.form-row select {
+  background-color: var(--form-bg);
+  color: var(--form-text);
+  border: 1px solid var(--form-border);
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+
+.buttons {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background-color: var(--button-bg);
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+button:disabled {
+  background-color: var(--button-disabled);
+  cursor: not-allowed;
+}
+
+button:hover:not(:disabled) {
+  background-color: var(--button-hover);
+}
+
+@media print {
+  .form-controls {
+    display: none;
+  }
+
+  canvas {
+    margin: 0;
+    border: none;
+  }
 }

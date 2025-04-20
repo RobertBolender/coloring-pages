@@ -143,89 +143,100 @@ function App() {
   return (
     <div style={{ textAlign: 'center', padding: '20px' }}>
       <h1>Coloring Page Generator</h1>
-      <div style={{ marginBottom: '20px' }}>
-        <label htmlFor="auto-generate" style={{ marginRight: '10px' }}>Auto-Generate: </label>
-        <input
-          id="auto-generate"
-          type="checkbox"
-          checked={autoGenerate}
-          onChange={(e) => setAutoGenerate(e.target.checked)}
-        />
-        <br />
-        <label htmlFor="font-select">Choose Font: </label>
-        <select id="font-select" value={font} onChange={handleFontChange}>
-          <option value="Arial">Arial</option>
-          <option value="Comic Sans">Comic Sans</option>
-          <option value="Courier New">Courier New</option>
-          <option value="Proxima Nova">Proxima Nova</option>
-          <option value="Roboto">Roboto</option>
-        </select>
-        <br />
-        <label htmlFor="font-size-slider" style={{ marginTop: '10px' }}>Font Size: {fontSize}px</label>
-        <input
-          id="font-size-slider"
-          type="range"
-          min="40"
-          max="120"
-          value={fontSize}
-          onChange={handleFontSizeChange}
-          style={{ marginLeft: '10px' }}
-        />
-      </div>
-      <div style={{ marginBottom: '20px' }}>
-        <label htmlFor="type-select">Choose Type: </label>
-        <select id="type-select" value={type} onChange={handleTypeChange}>
-          <option value="letters">Letters</option>
-          <option value="numbers">Numbers</option>
-        </select>
-        <br />
-        <label htmlFor="random-toggle" style={{ marginTop: '10px' }}>Random Placement: </label>
-        <input
-          id="random-toggle"
-          type="checkbox"
-          checked={isRandom}
-          onChange={handleRandomChange}
-          style={{ marginLeft: '10px' }}
-        />
-        {type === 'numbers' && (
-          <div style={{ marginTop: '10px' }}>
-            <label htmlFor="start-number">Start Number: </label>
+      <div className="form-controls">
+        <div className="form-section">
+          <div className="form-row">
+            <label htmlFor="auto-generate">Auto-Generate:</label>
             <input
-              id="start-number"
-              type="number"
-              value={startNumber}
-              onChange={handleStartNumberChange}
-              style={{ marginLeft: '10px' }}
-            />
-            <br />
-            <label htmlFor="end-number" style={{ marginTop: '10px' }}>End Number: </label>
-            <input
-              id="end-number"
-              type="number"
-              value={endNumber}
-              onChange={handleEndNumberChange}
-              style={{ marginLeft: '10px' }}
-            />
-            <br />
-            <label htmlFor="step-number" style={{ marginTop: '10px' }}>Step: </label>
-            <input
-              id="step-number"
-              type="number"
-              value={stepNumber}
-              onChange={handleStepNumberChange}
-              style={{ marginLeft: '10px' }}
+              id="auto-generate"
+              type="checkbox"
+              checked={autoGenerate}
+              onChange={(e) => setAutoGenerate(e.target.checked)}
             />
           </div>
-        )}
+          <div className="form-row">
+            <label htmlFor="font-select">Choose Font:</label>
+            <select id="font-select" value={font} onChange={handleFontChange}>
+              <option value="Arial">Arial</option>
+              <option value="Comic Sans">Comic Sans</option>
+              <option value="Courier New">Courier New</option>
+              <option value="Proxima Nova">Proxima Nova</option>
+              <option value="Roboto">Roboto</option>
+            </select>
+          </div>
+          <div className="form-row">
+            <label htmlFor="font-size-slider">Font Size: {fontSize}px</label>
+            <input
+              id="font-size-slider"
+              type="range"
+              min="40"
+              max="120"
+              value={fontSize}
+              onChange={handleFontSizeChange}
+            />
+          </div>
+        </div>
+
+        <div className="form-section">
+          <div className="form-row">
+            <label htmlFor="type-select">Choose Type:</label>
+            <select id="type-select" value={type} onChange={handleTypeChange}>
+              <option value="letters">Letters</option>
+              <option value="numbers">Numbers</option>
+            </select>
+          </div>
+          <div className="form-row">
+            <label htmlFor="random-toggle">Random Placement:</label>
+            <input
+              id="random-toggle"
+              type="checkbox"
+              checked={isRandom}
+              onChange={handleRandomChange}
+            />
+          </div>
+          {type === 'numbers' && (
+            <>
+              <div className="form-row">
+                <label htmlFor="start-number">Start Number:</label>
+                <input
+                  id="start-number"
+                  type="number"
+                  value={startNumber}
+                  onChange={handleStartNumberChange}
+                />
+              </div>
+              <div className="form-row">
+                <label htmlFor="end-number">End Number:</label>
+                <input
+                  id="end-number"
+                  type="number"
+                  value={endNumber}
+                  onChange={handleEndNumberChange}
+                />
+              </div>
+              <div className="form-row">
+                <label htmlFor="step-number">Step:</label>
+                <input
+                  id="step-number"
+                  type="number"
+                  value={stepNumber}
+                  onChange={handleStepNumberChange}
+                />
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="buttons">
+          <button onClick={handleGenerate}>Generate</button>
+          <button onClick={window.print}>Print Coloring Page</button>
+        </div>
       </div>
-      <button onClick={handleGenerate} style={{ marginTop: '10px' }} disabled={autoGenerate}>Generate</button>
-      <button onClick={window.print} style={{ marginLeft: '10px' }}>
-        Print Coloring Page
-      </button>
+
       <canvas
         ref={canvasRef}
-        width={816} // 8.5 inches in pixels at 96 DPI
-        height={1056} // 11 inches in pixels at 96 DPI
+        width={816}
+        height={1056}
         style={{ marginTop: '20px' }}
       ></canvas>
     </div>
