@@ -2,6 +2,96 @@ import { useRef, useState, useEffect } from 'react';
 import seedrandom from 'seedrandom';
 import './App.css';
 
+const Gallery = ({ pages, onLoad, onDelete }) => {
+  const renderThumbnail = (page) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 816 / 3;
+    canvas.height = 1056 / 3;
+    const ctx = canvas.getContext('2d');
+
+    // Apply the page settings to generate the thumbnail
+    const { settings } = page;
+    ctx.font = `${settings.fontSize / 3}px ${settings.font}`;
+    ctx.strokeStyle = 'black';
+    ctx.lineWidth = 1;
+
+    // Generate the content at 1/3 scale
+    if (settings.type === 'letters') {
+      const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      if (settings.isRandom) {
+        const rng = seedrandom(settings.randomSeed);
+        const positions = [];
+        letters.split('').forEach((letter) => {
+          let x = rng() * (canvas.width - settings.fontSize / 2) + settings.fontSize / 4;
+          let y = rng() * (canvas.height - settings.fontSize / 2) + settings.fontSize / 4;
+          positions.push([x, y]);
+          const metrics = ctx.measureText(letter);
+          ctx.strokeText(letter, x - metrics.width / 2, y);
+        });
+      } else {
+        const padding = 3;
+        const pageMargin = 10;
+        const spacing = (canvas.width - 2 * pageMargin) / settings.lettersPerRow;
+        letters.split('').forEach((letter, i) => {
+          const row = Math.floor(i / settings.lettersPerRow);
+          const col = i % settings.lettersPerRow;
+          const x = pageMargin + col * spacing + spacing / 2;
+          const y = pageMargin + row * (settings.fontSize / 3 * 1.2 + padding) + settings.fontSize / 3;
+          const metrics = ctx.measureText(letter);
+          ctx.strokeText(letter, x - metrics.width / 2, y);
+        });
+      }
+    } else {
+      const numbers = Array.from(
+        { length: Math.ceil((settings.endNumber - settings.startNumber + 1) / settings.stepNumber) },
+        (_, i) => settings.startNumber + i * settings.stepNumber
+      );
+      if (settings.isRandom) {
+        const rng = seedrandom(settings.randomSeed);
+        const positions = [];
+        numbers.forEach((number) => {
+          let x = rng() * (canvas.width - settings.fontSize / 2) + settings.fontSize / 4;
+          let y = rng() * (canvas.height - settings.fontSize / 2) + settings.fontSize / 4;
+          positions.push([x, y]);
+          const metrics = ctx.measureText(number.toString());
+          ctx.strokeText(number.toString(), x - metrics.width / 2, y);
+        });
+      } else {
+        const padding = 3;
+        const pageMargin = 10;
+        const spacing = (canvas.width - 2 * pageMargin) / settings.numbersPerRow;
+        numbers.forEach((number, i) => {
+          const row = Math.floor(i / settings.numbersPerRow);
+          const col = i % settings.numbersPerRow;
+          const x = pageMargin + col * spacing + spacing / 2;
+          const y = pageMargin + row * (settings.fontSize / 3 * 1.2 + padding) + settings.fontSize / 3;
+          const metrics = ctx.measureText(number.toString());
+          ctx.strokeText(number.toString(), x - metrics.width / 2, y);
+        });
+      }
+    }
+
+    return (
+      <div key={page.id} className="gallery-item">
+        <div className="gallery-item-content">
+          <img src={canvas.toDataURL()} alt={page.name} />
+          <div className="gallery-item-title">{page.name}</div>
+          <div className="gallery-item-actions">
+            <button onClick={() => onLoad(page)}>Load</button>
+            <button onClick={() => onDelete(page.id)} className="delete">×</button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="gallery-grid">
+      {pages.slice(0, 9).map(renderThumbnail)}
+    </div>
+  );
+};
+
 function App() {
   const canvasRef = useRef(null);
   const [font, setFont] = useState('Arial');
@@ -20,6 +110,7 @@ function App() {
     return saved ? JSON.parse(saved) : [];
   });
   const [currentPageName, setCurrentPageName] = useState('');
+  const [showGallery, setShowGallery] = useState(false);
 
   // Load saved pages from localStorage on mount
   useEffect(() => {
@@ -354,6 +445,9 @@ function App() {
         <div className="buttons">
           <button onClick={handleRegenerateClick}>Regenerate</button>
           <button onClick={window.print}>Print Coloring Page</button>
+          <button onClick={() => setShowGallery(!showGallery)}>
+            {showGallery ? 'Show Canvas' : 'Show Gallery'}
+          </button>
         </div>
 
         <div className="form-section">
@@ -388,7 +482,17 @@ function App() {
           ref={canvasRef}
           width={816}
           height={1056}
-        ></canvas>
+        />
+        {showGallery && (
+          <Gallery
+            pages={savedPages}
+            onLoad={(page) => {
+              loadPage(page);
+              setShowGallery(false);
+            }}
+            onDelete={deletePage}
+          />
+        )}
       </div>
     </div>
   );
